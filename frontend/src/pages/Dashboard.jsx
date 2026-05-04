@@ -13,7 +13,7 @@ export default function Dashboard() {
 
     const fetchRecommendations = async () => {
       try {
-        const res = await api.get("/recommendations");
+        const res = await api.get("/api/recommendations");
         setRecommendations(res.data.data);
       } catch (err) {
         console.error("Error fetching recommendations", err);

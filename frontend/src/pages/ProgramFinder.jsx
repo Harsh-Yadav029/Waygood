@@ -21,7 +21,7 @@ export default function ProgramFinder() {
       if (!params.fieldOfStudy) delete params.fieldOfStudy;
       if (!params.maxTuition) delete params.maxTuition;
 
-      const res = await api.get("/programs", { params });
+      const res = await api.get("/api/programs", { params });
       setPrograms(res.data.data);
       setMeta(res.data.meta);
     } catch (err) {

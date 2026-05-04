@@ -3,7 +3,7 @@ import axios from "axios";
 const getBaseURL = () => {
   const envUrl = import.meta.env.VITE_API_BASE_URL;
   if (envUrl) return envUrl;
-  return "http://localhost:4000/api";
+  return "http://localhost:4000";
 };
 
 const api = axios.create({

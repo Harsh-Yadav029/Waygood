@@ -24,7 +24,7 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      await api.post("/auth/register", formData);
+      await api.post("/api/auth/register", formData);
       // Registration success - redirect to login
       navigate("/login", { state: { message: "Account created successfully! Please login." } });
     } catch (err) {

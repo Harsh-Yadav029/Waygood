@@ -15,7 +15,7 @@ export default function LoginPage() {
     setError("");
     
     try {
-      const response = await api.post("/auth/login", { email, password });
+      const response = await api.post("/api/auth/login", { email, password });
       
       // Save credentials correctly from the data wrapper
       localStorage.setItem("token", response.data.data.token);
