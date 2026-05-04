@@ -17,8 +17,21 @@ const notFound = require("./middleware/notFound");
 const app = express();
 
 // Security Middleware
-app.use(helmet()); // Sets secure HTTP headers
-app.use(cors());
+app.use(helmet()); 
+app.use(cors({
+  origin: ["https://waygood-frontend.vercel.app", "http://localhost:5173"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+}));
+
+// Pre-flight fix for Private Network Access (Chrome protection)
+app.use((req, res, next) => {
+  if (req.headers["access-control-request-private-network"]) {
+    res.setHeader("Access-Control-Allow-Private-Network", "true");
+  }
+  next();
+});
 
 // Rate Limiting: 100 requests per 15 minutes per IP
 const limiter = rateLimit({
