@@ -77,11 +77,4 @@ node src/scripts/verify-api.js
 
 ---
 
-## 📂 Documentation Guide
-For a deeper dive into the engineering decisions, please refer to:
-- [`docs/PERFORMANCE.md`](./docs/PERFORMANCE.md): Detailed indexing and caching strategies.
-- [`docs/INTERVIEW_PREP_GUIDE.md`](./docs/INTERVIEW_PREP_GUIDE.md): Technical Q&A and War Stories for evaluators.
-
----
-
 **Developed with ❤️ for the Waygood Candidate Evaluation.**
