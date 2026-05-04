@@ -16,49 +16,43 @@ const notFound = require("./middleware/notFound");
 
 const app = express();
 
-// 1. Private Network Access (PNA) Handshake - MUST BE FIRST
-app.use((req, res, next) => {
-  // Always allow the Vercel origin for CORS
-  const allowedOrigins = ["https://waygood-frontend.vercel.app", "http://localhost:5173", "http://127.0.0.1:5173"];
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
+// 1. Production-Ready CORS Configuration
+const allowedOrigins = [
+  "https://waygood-frontend.vercel.app",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173"
+];
 
-  // This is the CRITICAL header for Chrome's Private Network Access security
-  if (req.headers["access-control-request-private-network"]) {
-    res.setHeader("Access-Control-Allow-Private-Network", "true");
-  }
-
-  // Handle Preflight (OPTIONS) requests immediately
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-  next();
-});
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+}));
 
 // 2. Standard Middleware
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" } // Allow resources to be accessed across origins
+  crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 app.use(express.json());
 app.use(morgan("dev"));
 
-// Rate Limiting: 100 requests per 15 minutes per IP
+// Apply rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: {
-    success: false,
-    message: "Too many requests from this IP, please try again after 15 minutes",
-  },
+  message: { success: false, message: "Too many requests, please try again later." },
 });
-app.use("/api/", limiter); // Apply rate limiting to all API routes
-app.use(express.json());
-app.use(morgan("dev"));
+app.use("/api/", limiter);
 
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
