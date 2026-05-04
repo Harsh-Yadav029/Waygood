@@ -19,7 +19,11 @@ const app = express();
 // 1. Private Network Access (PNA) Handshake - MUST BE FIRST
 app.use((req, res, next) => {
   // Always allow the Vercel origin for CORS
-  res.setHeader("Access-Control-Allow-Origin", "https://waygood-frontend.vercel.app");
+  const allowedOrigins = ["https://waygood-frontend.vercel.app", "http://localhost:5173", "http://127.0.0.1:5173"];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
   res.setHeader("Access-Control-Allow-Credentials", "true");
