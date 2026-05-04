@@ -16,22 +16,32 @@ const notFound = require("./middleware/notFound");
 
 const app = express();
 
-// Security Middleware
-app.use(helmet()); 
-app.use(cors({
-  origin: ["https://waygood-frontend.vercel.app", "http://localhost:5173"],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-}));
-
-// Pre-flight fix for Private Network Access (Chrome protection)
+// 1. Private Network Access (PNA) Handshake - MUST BE FIRST
 app.use((req, res, next) => {
+  // Always allow the Vercel origin for CORS
+  res.setHeader("Access-Control-Allow-Origin", "https://waygood-frontend.vercel.app");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  // This is the CRITICAL header for Chrome's Private Network Access security
   if (req.headers["access-control-request-private-network"]) {
     res.setHeader("Access-Control-Allow-Private-Network", "true");
   }
+
+  // Handle Preflight (OPTIONS) requests immediately
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
   next();
 });
+
+// 2. Standard Middleware
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Allow resources to be accessed across origins
+}));
+app.use(express.json());
+app.use(morgan("dev"));
 
 // Rate Limiting: 100 requests per 15 minutes per IP
 const limiter = rateLimit({
